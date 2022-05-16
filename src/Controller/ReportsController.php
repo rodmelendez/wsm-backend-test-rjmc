@@ -16,10 +16,13 @@ class ReportsController extends AbstractController
     /**
     * @Route("/reports/app")
     */
-    public function index(): Response
+    public function index(DocumentManager $dm): Response
     {
+        $data =  $dm->getRepository(Account::class)
+            ->getReports();
         return $this->render('reports/index.html.twig', [
             'controller_name' => 'ReportsController',
+            'cuentas' => $data,
         ]);
     }
 
@@ -29,7 +32,7 @@ class ReportsController extends AbstractController
     public function getAccounts(DocumentManager $dm): Response
     {
         $data =  $dm->getRepository(Account::class)
-                      ->findAllAccountById();
+                      ->getReports();
 
         /*return new Response(
             '<html><body>Lucky number: '.$number.'</body></html>'

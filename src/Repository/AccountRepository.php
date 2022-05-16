@@ -18,29 +18,57 @@ class AccountRepository extends DocumentRepository
             ->getQuery()
             ->execute();
     }
-    public function findAccountActive()
+    /*public function findAccountActive()
     {
         return $this->createQueryBuilder()
             ->match()->field('status')  ->equals('ACTIVE')
             ->getQuery()
             ->execute();
+    }*/
+
+    public function getReport()
+    {
+
     }
 
-    public function getReports( string | null $accountId = null)
+    public function getReports()
     {
         $dm = $this->getDocumentManager();
         $builder = $dm->createAggregationBuilder(Account::class);
-        $builder->match()->field('status')  ->equals('ACTIVE')
-            ->lookup('Metrics')             ->foreignField('accountId')
-            ->localField('accountId')    ->alias('metrics')
-            ->group()                            ->field('id')
-            ->expression('$accountId')      ->field('spend')
-            ->sum( $builder->expr()->sum('$metrics.spend'))
-            ->field('impressions') ->sum( $builder->expr() ->sum('$metrics.impressions'))
-            ->field('clicks')->sum( $builder->expr()->sum('$metrics.clicks'));
+        $builder ->match()
+                    ->field('status')->equals('ACTIVE')
 
-        $result = $builder->getAggregation()->getIterator()->toArray();
+                 ->lookup('Metrics')
+                    ->foreignField('accountId')
+                    ->localField('accountId')->alias('metrics')
 
-        return $result;
+                 ->group()
+                    ->field('id')
+                        ->expression('$id')
+
+                    ->field('accountName')
+                        ->first('$accountName')
+                    ->field('accountId')
+                        ->first('$accountId')
+
+                    ->field('spend')
+                        ->sum( $builder->expr()->sum('$metrics.spend'))
+
+                    ->field('clicks')
+                        ->sum( $builder->expr()->sum('$metrics.clicks'))
+
+                    ->field('impressions')
+                        ->sum( $builder->expr() ->sum('$metrics.impressions'))
+
+                    ->addFields()
+                        ->field('costPerClick')
+                            ->cond( $builder->expr()
+                                            ->eq('$clicks', 0),0,
+                                            ['$divide' => ['$spend', '$clicks' ] ] )
+
+                 ->sort('id', 'asc');
+
+        $resultado = $builder->getAggregation()->getIterator()->toArray();
+        return $resultado;
     }
 }
