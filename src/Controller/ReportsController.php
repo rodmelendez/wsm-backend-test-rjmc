@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Symfony\Component\HttpFoundation\Request;
 
 class ReportsController extends AbstractController
 {
@@ -39,6 +40,22 @@ class ReportsController extends AbstractController
         );*/
         return $this->json([
            'cuentas' => $data,
+        ]);
+    }
+
+    /**
+     * @Route("/reports/account1/{id}")
+     */
+    public function getAccount(DocumentManager $dm, Request $request): Response
+    {
+        $data =  $dm->getRepository(Account::class)
+            ->getReport($request);
+
+        /*return new Response(
+            '<html><body>Lucky number: '.$number.'</body></html>'
+        );*/
+        return $this->json([
+            'cuentas' => $data,
         ]);
     }
 

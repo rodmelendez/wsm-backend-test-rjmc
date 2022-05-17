@@ -26,8 +26,45 @@ class AccountRepository extends DocumentRepository
             ->execute();
     }*/
 
-    public function getReport()
+    public function getReport($accountId)
     {
+        //$accountId = 'googleAds2336217178';
+        $dm = $this->getDocumentManager();
+        $builder = $dm->createAggregationBuilder(Account::class);
+        $builder ->match()
+                    ->field('status')->equals('ACTIVE')
+                    ->field('accountId')->equals($accountId)
+
+            ->lookup('Metrics')
+            ->foreignField('accountId')
+            ->localField('accountId')->alias('metric1')
+
+            ->group()
+            ->field('id')
+            ->expression('$id')
+
+            ->field('accountName')
+            ->first('$accountName')
+            ->field('accountId')
+            ->first('$accountId')
+
+            ->field('spend')
+            ->sum( $builder->expr()->sum('$metric1.spend'))
+
+            ->field('clicks')
+            ->sum( $builder->expr()->sum('$metric1.clicks'))
+
+            ->field('impressions')
+            ->sum( $builder->expr() ->sum('$metric1.impressions'))
+
+            ->addFields()
+            ->field('costPerClick')
+            ->cond( $builder->expr()
+                ->eq('$clicks', 0),0,
+                ['$divide' => ['$spend', '$clicks' ] ] );
+
+        $resultado1 = $builder->getAggregation()->getIterator()->toArray();
+        return $resultado1;
 
     }
 
