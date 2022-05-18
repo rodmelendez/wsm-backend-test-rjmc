@@ -18,6 +18,7 @@ class AccountRepository extends DocumentRepository
             ->getQuery()
             ->execute();
     }
+
     /*public function findAccountActive()
     {
         return $this->createQueryBuilder()
@@ -26,14 +27,14 @@ class AccountRepository extends DocumentRepository
             ->execute();
     }*/
 
-    public function getReport($accountId)
+    public function getReport($id)
     {
         //$accountId = 'googleAds2336217178';
         $dm = $this->getDocumentManager();
         $builder = $dm->createAggregationBuilder(Account::class);
         $builder ->match()
                     ->field('status')->equals('ACTIVE')
-                    ->field('accountId')->equals($accountId)
+                    ->field('accountId')->equals($id)
 
             ->lookup('Metrics')
             ->foreignField('accountId')

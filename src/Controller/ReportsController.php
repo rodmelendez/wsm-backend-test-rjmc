@@ -19,11 +19,10 @@ class ReportsController extends AbstractController
     */
     public function index(DocumentManager $dm): Response
     {
-        $data =  $dm->getRepository(Account::class)
-            ->getReports();
+        $datas =  $dm->getRepository(Account::class)->getReports();
         return $this->render('reports/index.html.twig', [
             'controller_name' => 'ReportsController',
-            'cuentas' => $data,
+            'cuentas' => $datas,
         ]);
     }
 
@@ -32,30 +31,22 @@ class ReportsController extends AbstractController
     */
     public function getAccounts(DocumentManager $dm): Response
     {
-        $data =  $dm->getRepository(Account::class)
-                      ->getReports();
+        $data =  $dm->getRepository(Account::class)->getReports();
 
-        /*return new Response(
-            '<html><body>Lucky number: '.$number.'</body></html>'
-        );*/
         return $this->json([
            'cuentas' => $data,
         ]);
     }
 
     /**
-     * @Route("/reports/account1/{id}")
+     * @Route("/reports/show/{id}",  name="data_show", methods={"GET"})
      */
-    public function getAccount(DocumentManager $dm, Request $request): Response
+    public function getAccount(DocumentManager $dm, string $id): Response
     {
-        $data =  $dm->getRepository(Account::class)
-            ->getReport($request);
+        $data =  $dm->getRepository(Account::class)->getReport($id);
 
-        /*return new Response(
-            '<html><body>Lucky number: '.$number.'</body></html>'
-        );*/
         return $this->json([
-            'cuentas' => $data,
+            'data' => $data,
         ]);
     }
 
